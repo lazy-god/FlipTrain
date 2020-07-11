@@ -1,19 +1,50 @@
 package oops;
 
+import java.lang.Math;
+
+interface Diameter {
+  double calcDiameter();
+}
+
+// class Wheel
+class Wheel implements Diameter {
+  private double rimDiameter;
+  private double tireWidth;
+
+  public Wheel(double rimDiameter, double tireWidth) {
+    this.rimDiameter = rimDiameter;
+    this.tireWidth = tireWidth;
+  }
+
+  public double calcDiameter() {
+    return rimDiameter + (tireWidth * 2);
+  }
+
+  public double calcWheelCircumference() {
+    return Math.PI * calcDiameter();
+  }
+}
+
 // Gear Class
 class Gear {
   private int chainRings;
   private int cog;
+  private Diameter circle;
 
-  public Gear(int chainRings, int cog) {
+  public Gear(int chainRings, int cog, Diameter circle) {
     this.chainRings = chainRings;
     this.cog = cog;
+    this.circle = circle;
   }
 
   public double calcRatio() {
     // check for division by zero
     if(cog != 0) return  Double.valueOf(chainRings) / cog;
     return 0.0;
+  }
+
+  public double gearInches() {
+    return calcRatio() * circle.calcDiameter();
   }
 
   // Accessor Methods
@@ -23,10 +54,11 @@ class Gear {
 
 public class BicyclesGear {
   public static void main(String[] args) {
-    Gear g1 = new Gear(52, 11);
-    Gear g2 = new Gear(30, 0);
+    Wheel w1 = new Wheel(10.4, 2.2);
+    System.out.println(w1.calcDiameter());
 
-    System.out.println(g1.calcRatio());
-    System.out.println(g2.calcRatio());
+    Gear g1 = new Gear(52, 11, w1);
+    System.out.println(g1.gearInches());
+
   }
 }
