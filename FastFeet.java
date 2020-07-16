@@ -1,79 +1,95 @@
 package oops;
 
-abstract class Bicycle {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Stream;
+import java.util.stream.Collector;
+
+class Part {
+  private String name;
+  private String value;
+  private boolean spare;
+
+  public Part(String name, String value, boolean spare) {
+    this.name = name;
+    this.value = value;
+    this.spare = spare;
+  }
+
+  public String getName() { return this.name; }
+  public String getValue() { return this.value; }
+  public boolean needSpare() { return this.spare; }
+}
+
+class Parts {
+  private ArrayList<Part> parts;
+
+  public Parts(ArrayList<Part> parts) {
+    this.parts = parts;
+  }
+
+  public ArrayList<Part> getPartList() { return this.parts; }
+  public void addPart(Part part) { this.parts.add(part); }
+}
+
+class Bicycle {
   private String size;
-  private String tireSize;
-  private String chain = "10-speed";
+  private Parts parts;
 
-  public Bicycle(String size, String tireSize) {
+  public Bicycle(String size, Parts parts) {
     this.size = size;
-    this.tireSize = tireSize;
+    this.parts = parts;
   }
 
-  public Bicycle(String size, String chain, String tireSize) {
-    this.size = size;
-    this.chain = chain;
-    this.tireSize = tireSize;
+  public String getSize() { return this.size; }
+  public Parts getParts() { return this.parts; }
+  public Parts getSpares() {
+    Parts p = new Parts(new ArrayList<>());
+    for(Part part : this.parts.getPartList()) {
+      if(part.needSpare()) p.addPart(part);
+    }
+    return p;
   }
-
-  // Accessor Methods
-  public String getSize() { return size; }
-  public String getChain() { return chain; }
-  public String getTireSize() { return tireSize; }
 }
 
-class MountainBike extends Bicycle {
-  private String frontShock;
-  private String rearShock;
-
-  public MountainBike(String size, String frontShock, String rearShock) {
-    super(size, "2.1"); // default tire size -> 2.1
-    this.frontShock = frontShock;
-    this.rearShock = rearShock;
+class PartsFactory {
+  public static Parts build(Part... config) {
+    return new Parts(new ArrayList(Arrays.asList(config)));
   }
-  
-  public MountainBike(String size, String tireSize, String frontShock, String rearShock) {
-    super(size, tireSize); 
-    this.frontShock = frontShock;
-    this.rearShock = rearShock;
-  }
-
-  // Accessor Methods
-  public String getFrontShock() { return frontShock; }
-  public String getRearShock() { return rearShock; }
-}
-
-class RoadBike extends Bicycle {
-  private String tapeColor;
-
-  public RoadBike(String size, String tapeColor) {
-    super(size, "23"); // default tire size -> 23
-    this.tapeColor = tapeColor;
-  }
-  
-  public RoadBike(String size, String tireSize, String tapeColor) {
-    super(size, tireSize);
-    this.tapeColor = tapeColor;
-  }
-
-  // Accessor Methods
-  public String getTapeColor() { return tapeColor; }
 }
 
 public class FastFeet {
   public static void main(String[] args) {
-    MountainBike mb = new MountainBike("M", "Manitou", "Fox");
-    RoadBike rb = new RoadBike("L", "Red");
-
-    System.out.println(mb.getFrontShock());
-    System.out.println(mb.getRearShock());
-    System.out.println(mb.getTireSize());
-    System.out.println(mb.getChain());
-    System.out.println(mb.getSize());
+    Bicycle roadBike = new Bicycle(
+      "L",
+      PartsFactory.build(
+        new Part("chain", "10-speed", true),
+        new Part("tire_size", "23", false),
+        new Part("tape_color", "red", true)
+      )
+    );
     
-    System.out.println(rb.getTapeColor());
-    System.out.println(rb.getTireSize());
-    System.out.println(rb.getChain());
-    System.out.println(rb.getSize());
+    Bicycle mountainBike = new Bicycle(
+      "M",
+      PartsFactory.build(
+        new Part("chain", "10-speed", true),
+        new Part("tire_size", "2.1", true),
+        new Part("front_shock", "Mountau", false),
+        new Part("rear_shock", "Fox", true)
+      )
+    );
+
+    Parts roadSpares = roadBike.getSpares();
+    Parts mountainSpares = mountainBike.getSpares();
+
+    for(Part part : roadSpares.getPartList()) {
+      System.out.println(part.getName());
+      System.out.println(part.getValue());
+    }
+    
+    for(Part part : mountainSpares.getPartList()) {
+      System.out.println(part.getName());
+      System.out.println(part.getValue());
+    }
   }
 }
