@@ -1,3 +1,5 @@
+// Enum example in java during Training
+
 package oops;
 
 class DemoEnum {
